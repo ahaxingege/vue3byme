@@ -1,0 +1,7 @@
+// postcss.config.js
+module.exports = ({ env }) => ({
+    plugins: [
+         require('autoprefixer'),
+        //  env === 'production' ? require('cssnano') : null
+      ]
+ })

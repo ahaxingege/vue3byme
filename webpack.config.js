@@ -3,13 +3,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 // 最新的 vue-loader 中，VueLoaderPlugin 插件的位置有所改变
 const { VueLoaderPlugin } = require('vue-loader/dist/index')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     mode: 'development',
     // entry: path.resolve(__dirname, './src/main.js'),
     entry: ['@babel/polyfill', './src/main.js'],
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'js/[name].js',
+        filename: 'static/js/[name].[hash:8].js',
 
     },
     devServer: {
@@ -17,7 +18,7 @@ module.exports = {
         compress: true, // 是否压缩
         port: 3000, // 端口
         hot: true, // 热部署
-        open: true,
+        open: false,
     },
     module: {
         rules: [
@@ -27,17 +28,27 @@ module.exports = {
                     'vue-loader'
                 ]
             },
-            {
-                test: /\.css$/,
-                use: [
-                    'style-loader',
-                    'css-loader'
-                ]
-            },
+
             {
                 test: /\.js$/,
                 exclude: /node_modules/, // 不编译node_modules下的文件
                 loader: 'babel-loader',
+            },
+            {
+                test: /\.css$/,
+                use: [MiniCssExtractPlugin.loader, "css-loader", 'postcss-loader',],
+            },
+            {
+                test: /\.scss$/,
+                use: [
+                    // MiniCssExtractPlugin.loader,
+                    'style-loader',
+                    'css-loader',
+                    'postcss-loader',
+                    'sass-loader',
+                    'px2rem-loader',
+                  
+                ]
             },
             {
                 test: /\.(woff|woff2|eot|ttf|svg)$/,
@@ -46,7 +57,7 @@ module.exports = {
                     loader: 'url-loader',
                     options: {
                         limit: 25000,
-                        name: 'fonts/[hash].[ext]'
+                        name: 'static/fonts/[hash].[hash:8].[ext]'
                     },
                 }
             },
@@ -57,7 +68,7 @@ module.exports = {
                     loader: 'url-loader',
                     options: {
                         limit: 25000,
-                        name: 'images/[hash].[ext]'
+                        name: 'static/images/[hash].[hash:8].[ext]'
                     },
                 },
             },
@@ -79,8 +90,15 @@ module.exports = {
             favicon: './public/favicon.ico', // 图标
         }),
         // 添加 VueLoaderPlugin 插件
+        new MiniCssExtractPlugin(
+            {
+                // Options similar to the same options in webpackOptions.output
+                // both options are optional
+                filename: "static/css/[name].[hash:8].css",
+                chunkFilename: "[id].[hash:8].css",
+            }
+        ),
         new VueLoaderPlugin(),
         new CleanWebpackPlugin(),
-
     ]
 }
